@@ -1,0 +1,99 @@
+version: '3'
+services:
+  emqx:
+    image: emqx/emqx:5.0.20
+    environment:
+      - TZ
+      - 'EMQX_NAME=emqx'
+      - 'EMQX_ALLOW_ANONYMOUS=false'
+      - 'EMQX_ACL__DEFAULT__ALLOW=deny'
+      - 'EMQX_ACL__SUBSCRIBE__DENY=metablox/'
+      - 'EMQX_ACL__PUBLISH__DENY=metablox/'
+      - 'EMQX_ACL__PUBLISH__ALLOW=metablox/heartbeat,metablox/syncdata,metablox/metric'
+      - 'EMQX_ACL__SUBSCRIBE__ALLOW=$$to'
+      - 'EMQX_LOADED_PLUGINS=emqx_auth_username'
+      - 'EMQX_SUPERUSER__USERNAME=admin'
+      - 'EMQX_SUPERUSER__PASSWORD=admin123'
+      - 'EMQX_AUTH__USERNAME__HASH=sha256'
+      - 'EMQX_AUTH__TLS__VERIFY=verify_peer'
+      - 'EMQX_AUTH__TLS__FAIL_IF_NO_PEER_CERT=true'
+      - 'EMQX_AUTH__TLS__CACERTFILE=/certs/ca.crt'
+      - 'EMQX_AUTH__TLS__CERTFILE=/certs/client.crt'
+      - 'EMQX_AUTH__TLS__KEYFILE=/certs/client.key'
+      - 'EMQX_LOG_CONSOLE=true'
+      - 'EMQX_LOG_CONSOLE_LEVEL=info'
+      - 'EMQX_LOG_LEVEL=info'
+      - 'EMQX_ALLOW_MULTIPLE_SESSIONS=true'
+      - 'EMQX_MQTT__MAX_PACKET_SIZE=2MB'
+    volumes:
+      - ./data:/opt/emqx/data
+      - ./logs:/opt/emqx/log
+#      - ./etc:/opt/emqx/etc
+      - ./certs:/certs
+    ports:
+      - "18083:18083"
+      - "8883:8883"
+    restart: on-failure
+    networks:
+      - metablox
+
+
+
+  redis:
+    image: redis:7.0.7
+    container_name: redis
+    environment:
+      - TZ
+    networks:
+      - metablox
+    command: redis-server --requirepass ${METABLOX_REDIS_PWD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - metablox-redis:/data
+      - ./conf/redis.conf:/usr/local/etc/redis/redis.conf
+    tty: true
+    stdin_open: true
+    restart: on-failure
+
+
+#  mysql8:
+#    image: mysql:8.0.31
+#    container_name: mysql8
+#    ports:
+#      - "3308:3306"
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=${METABLOX_MYSQL_PWD}
+#      - MYSQL_DATABASE=metablox
+#      - MYSQL_USER=metablox
+#      - MYSQL_PASSWORD=${METABLOX_MYSQL_PWD}
+#      - TZ
+#
+#    command:
+#      [
+#        '--default-authentication-plugin=mysql_native_password',
+#        '--explicit_defaults_for_timestamp=true',
+#        '--character-set-server=utf8mb4',
+#        '--collation-server=utf8mb4_0900_ai_ci',
+#        '--lower_case_table_names=1',
+#        '--sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+#      ]
+#
+#    volumes:
+#      # 数据挂载
+#      - metablox-mysql:/var/lib/mysql/
+#      # 配置挂载
+#      - metablox-mysql:/etc/mysql/conf.d/
+#    networks:
+#      - metablox
+#    restart: on-failure
+
+volumes:
+  #  metablox-mysql:
+  metablox-redis:
+  metablox-emqx:
+
+
+networks:
+  metablox:
+    driver: bridge

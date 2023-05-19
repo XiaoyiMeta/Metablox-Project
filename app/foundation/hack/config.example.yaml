@@ -1,0 +1,22 @@
+# CLI tool, only in development environment.
+# https://goframe.org/pages/viewpage.action?pageId=3673173
+gfcli:
+  # Tool compilation configuration
+  build:
+    name: "foundation"
+    arch: "amd64"
+    system: "linux,darwin,windows"
+    mod: ""
+    cgo: 0
+
+  # dao generation
+  gen:
+    dao: #todo replace with your own password
+      - link: "mysql:root:234567@tcp(127.0.0.1:3306)/metablox"
+        descriptionTag: true
+        noModelComment: true
+        overwriteDao: true
+        importPrefix: "go-metablox/app/foundation/internal"
+    service:
+      importPrefix: "go-metablox/app/foundation/internal/logic"
+      overwrite: true

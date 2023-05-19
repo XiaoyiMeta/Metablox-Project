@@ -1,0 +1,33 @@
+server:
+  address: ":8089"
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+
+logger:
+  level: "all"
+  stdout: true
+  path: "./logs/"
+  file: "foundation.{Y-m-d}.log"
+  ctxKeys: [ "RequestId" ]
+
+database:
+  default:
+    type: "mysql"
+    link: "root:123456@tcp(127.0.0.1:3306)/metablox?timeout=5s&readTimeout=5s&writeTimeout=5s&parseTime=true&loc=Local&charset=utf8mb4"
+    debug: true
+    CreatedAt: CreatedAt
+    UpdatedAt: UpdatedAt
+
+metablox:
+  foundation:
+    rpcUrl: "https://api.s0.b.hmny.io"
+    FaucetPassphrase: "YOUR_WALLET_PASSWORD"
+    FaucetAccount: "YOUR_WALLET_ADDRESS"
+    registryAddress: "YOUR_REGISTRY_CONTRACT_ADDRESS"
+    amountPerTime: 1
+    amountLimitPerAddress: 20
+    amountLimitPerDay: 100
+    claimsIntervalHours: 24
+    registryAccount: "YOUR_REGISTRY_ACCOUNT"
+    registryPassphrase: "YOUR_WALLET_PASSWORD"
+
